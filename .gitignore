@@ -8,3 +8,5 @@ EEG-ImageNet.pth
 /data/imageNet_images/
 /output
 **plot**
+.EEG/
+ipynb_checkpoints/
