@@ -13,6 +13,8 @@ from model.mlp import MLP
 from model.rgnn import RGNN, get_edge_weight
 from utilities import *
 
+import csv
+import os
 
 def model_init(args, if_simple, num_classes, device):
     if if_simple:
@@ -27,6 +29,20 @@ def model_init(args, if_simple, num_classes, device):
     else:
         raise ValueError(f"Couldn't find the model {args.model}")
     return _model
+
+def append_result_row(args, acc):
+    """
+    Append one row to a CSV file with (model, granularity, subject, accuracy).
+    The CSV will be created in args.output_dir as classification_results.csv.
+    """
+    csv_path = os.path.join(args.output_dir, "classification_results.csv")
+    file_exists = os.path.isfile(csv_path)
+
+    with open(csv_path, mode="a", newline="") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["model", "granularity", "subject", "accuracy"])
+        writer.writerow([args.model, args.granularity, args.subject, acc])
 
 
 def model_main(args, model, train_loader, test_loader, criterion, optimizer, num_epochs, device, labels):
@@ -114,6 +130,7 @@ if __name__ == '__main__':
         with open(os.path.join(args.output_dir, "simple.txt"), "a") as f:
             f.write(f"{acc}")
             f.write("\n")
+        append_result_row(args, acc) # Append results to CSV
     else:
         if args.model.lower() == 'eegnet':
             train_dataloader = DataLoader(train_subset, batch_size=args.batch_size, shuffle=True)
@@ -141,3 +158,4 @@ if __name__ == '__main__':
         with open(os.path.join(args.output_dir, "eegnet.txt"), "a") as f:
             f.write(f"{epoch}: {acc}")
             f.write("\n")
+        append_result_row(args, acc) # Append results to CSV

@@ -2,10 +2,11 @@
 
 PYTHON_SCRIPT="../src/object_classification.py"
 
-DATA_DIR="../data/"
+#DATA_DIR="../data/"
+DATA_DIR="D:\DATASETS\EEG-ImageNet"
 G_OPTION="all"
 M_OPTION="eegnet"
-B_OPTION=80
+B_OPTION=40
 S_OPTION=0
 P_OPTION="eegnet_s${S_OPTION}_1x_0.pth"
 O_OPTION="../output/"
