@@ -3,12 +3,18 @@ import torch.nn.functional as F
 
 
 class MLP(nn.Module):
-    def __init__(self, args, num_classes, chans=62, dropout_rate=0.5):
+    def __init__(self, args, num_classes, chans=62, bands=4, dropout_rate=0.5):
         super(MLP, self).__init__()
 
         self.num_classes = num_classes
         self.chans = chans
-        input_dim = chans * 5
+        # For Riemann / covariance features: upper triangle of chans x chans
+        # For Riemann features:
+        # each band → SPD(62x62) → tangent vector of size 62*63/2 = 1953
+        # total input_dim = bands * 1953
+        input_dim = bands * (chans * (chans + 1) // 2)   # = 4 * 1953 = 7812
+        # For DE features: chans * 5 frequency bands
+        #input_dim = chans * 5
 
         self.l1 = nn.Linear(input_dim, 256)
         self.bn1 = nn.BatchNorm1d(256)

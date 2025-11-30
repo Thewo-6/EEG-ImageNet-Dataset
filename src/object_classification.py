@@ -101,7 +101,9 @@ if __name__ == '__main__':
     simple_model_list = ['svm', 'rf', 'knn', 'dt', 'ridge']
     if_simple = args.model.lower() in simple_model_list
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = model_init(args, if_simple, len(dataset) // 50, device) # output_dim: NOT number of classes; used for matching EEG samples to image items
+    # NOTE: len(dataset)//50 is NOT actual num_classes—it's a derived value used by the model;
+    #       the variable name 'num_classes' is misleading here.
+    model = model_init(args, if_simple, len(dataset) // 50, device)
     if args.pretrained_model:
         model.load_state_dict(torch.load(os.path.join(args.output_dir, str(args.pretrained_model))))
     if if_simple:

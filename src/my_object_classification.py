@@ -7,6 +7,7 @@ from tqdm import tqdm
 from sklearn.metrics import accuracy_score
 from dataset import EEGImageNetDataset
 from de_feat_cal import de_feat_cal
+from riemann_feat_cal import riemann_feat_cal
 from model.simple_model import SimpleModel
 from model.eegnet import EEGNet
 from model.mlp import MLP
@@ -104,9 +105,12 @@ if __name__ == '__main__':
 
     dataset = EEGImageNetDataset(args)
     eeg_data = np.stack([i[0].numpy() for i in dataset], axis=0)
+
     # extract frequency domain features
-    de_feat = de_feat_cal(eeg_data, args)
-    dataset.add_frequency_feat(de_feat)
+    """ de_feat = de_feat_cal(eeg_data, args)
+    dataset.add_frequency_feat(de_feat) """
+    reimann_feat = riemann_feat_cal(eeg_data, args)
+    dataset.add_frequency_feat(reimann_feat)
     labels = np.array([i[1] for i in dataset])
     train_index = np.array([i for i in range(len(dataset)) if i % 50 < 30])
     test_index = np.array([i for i in range(len(dataset)) if i % 50 > 29])
@@ -116,14 +120,16 @@ if __name__ == '__main__':
     simple_model_list = ['svm', 'rf', 'knn', 'dt', 'ridge']
     if_simple = args.model.lower() in simple_model_list
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # NOTE: len(dataset)//50 is NOT actual num_classes—it's a derived value used by the model;
+    #       the variable name 'num_classes' is misleading here.
     model = model_init(args, if_simple, len(dataset) // 50, device)
     if args.pretrained_model:
         model.load_state_dict(torch.load(os.path.join(args.output_dir, str(args.pretrained_model))))
     if if_simple:
         train_labels = labels[train_index]
         test_labels = labels[test_index]
-        train_feat = de_feat[train_index]
-        test_feat = de_feat[test_index]
+        train_feat = reimann_feat[train_index]
+        test_feat = reimann_feat[test_index]
         model.fit(train_feat, train_labels)
         y_pred = model.predict(test_feat)
         acc = accuracy_score(test_labels, y_pred)
@@ -155,7 +161,7 @@ if __name__ == '__main__':
             optimizer = optim.Adam(model.parameters(), lr=1e-3)
             acc, epoch = model_main(args, model, train_dataloader, test_dataloader, criterion, optimizer, 1000, device,
                                     labels)
-        with open(os.path.join(args.output_dir, "eegnet.txt"), "a") as f:
+        """ with open(os.path.join(args.output_dir, "eegnet.txt"), "a") as f:
             f.write(f"{epoch}: {acc}")
-            f.write("\n")
+            f.write("\n") """
         append_result_row(args, acc) # Append results to CSV

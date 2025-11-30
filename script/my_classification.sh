@@ -13,13 +13,13 @@ B_OPTION=80
 O_OPTION="../output"
 
 
-MODELS=("svm" "rf" "knn" "dt" "ridge" "eegnet" "mlp" "rgnn")
+MODELS=("svm" "mlp")
 
 # Start fresh CSV
 rm -f "$OUT_DIR/classification_results.csv"
 
 for m in "${MODELS[@]}"; do
-    for i in {0..15}; do
+    for i in {0..8}; do
         "$PYTHON" "$PYTHON_SCRIPT" \
             -d "$DATA_DIR" -g "$G_OPTION" -m "$m" \
             -b "$B_OPTION" -p "$P_OPTION1" -s "$i" -o "$O_OPTION"

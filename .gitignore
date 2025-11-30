@@ -5,6 +5,7 @@ __pycache__/
 
 EEG-ImageNet.pth
 /data/de_feat/
+/data/riemann_feat/
 /data/imageNet_images/
 /output
 **plot**
