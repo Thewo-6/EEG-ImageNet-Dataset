@@ -88,6 +88,7 @@ if __name__ == '__main__':
 
     dataset = EEGImageNetDataset(args)
     eeg_data = np.stack([i[0].numpy() for i in dataset], axis=0)
+
     # extract frequency domain features
     de_feat = de_feat_cal(eeg_data, args)
     dataset.add_frequency_feat(de_feat)
@@ -100,7 +101,7 @@ if __name__ == '__main__':
     simple_model_list = ['svm', 'rf', 'knn', 'dt', 'ridge']
     if_simple = args.model.lower() in simple_model_list
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = model_init(args, if_simple, len(dataset) // 50, device)
+    model = model_init(args, if_simple, len(dataset) // 50, device) # output_dim: NOT number of classes; used for matching EEG samples to image items
     if args.pretrained_model:
         model.load_state_dict(torch.load(os.path.join(args.output_dir, str(args.pretrained_model))))
     if if_simple:
